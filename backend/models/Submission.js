@@ -10,7 +10,7 @@ const subMissionSchema = new mongoose.Schema({
     task:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Task",
-        requried:true
+        required:true
     },
     fileUrl:{
         type:String,
@@ -23,9 +23,11 @@ const subMissionSchema = new mongoose.Schema({
     feedback:{
         type:String
     },
-    submittedAt:{
+    submitفedAt:{
         type:Date,
-        default:Date.now()
+        default:Date.now
     }
 
 });
+const Submission = mongoose.model("Submission" , subMissionSchema);
+export default Submission;

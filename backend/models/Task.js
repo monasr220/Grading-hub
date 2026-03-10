@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 const taskSchema = new mongoose.Schema(
 {
   title: {
@@ -25,12 +26,13 @@ const taskSchema = new mongoose.Schema(
     required: true
   }
   ,
-  createsAt :{
+  createdAt :{
     type:Date,
     ref:"User",
-    default : Date.now()
+    default : Date.now
   }
 
 },
 { timestamps: true }
 );
+export default taskSchema

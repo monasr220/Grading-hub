@@ -9,20 +9,21 @@ import {
     updateCurrentUserProfile
 } from "../controllers/user.controller";
 
-import {authenicate , authorizedAdmin} from "../middlewares/authMiddleware";
+import {authenticate , authorizedAdmin} from "../middlewares/authMiddleware";
 
 const router  = express.Router();
 router
     .route("/")
     .post(createUser)
-    .get(authenicate , authorizedAdmin , getAllUsers);
+    .get(authenticate , authorizedAdmin , getAllUsers);
 
 router.post("/auth" , loginUser);
 router.post("/logout" , logoutCurrentUser);
 
 router 
-    .route("/profiel")
-    .get(authenicate , getCurrentUserProfile)
-    .put(authenicate , updateCurrentUserProfile);
+    .route("/profile")
+    .get(authenticate , getCurrentUserProfile)
+    .put(authenticate , updateCurrentUserProfile);
+
 
 export default router;

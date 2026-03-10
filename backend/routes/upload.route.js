@@ -17,13 +17,14 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req ,file , cb)=>{
-    const filetypes = /pd?f|pdf|docx/;
-    const mimetypes = /doc\/pd?f|doc\/pdf||doc\/docx/;
+    const filetypes = /\.(pdf|docx)$/i;
+    const mimetypes = /application\/pdf|application\/vnd\..+wordprocessingml/i;
 
-    const extname = path.extname(file.originalname);
-    const mimetype = file.mimetype;
 
-    if(filetypes.test(extname) && mimetype.test(mimetype)){
+    const extname = filetypes.test(path.extname(file.originalname));
+    const mimetype = mimetypes.test(file.mimetype);
+
+    if(filetypes&& mimetype){
         cb(null , true);
 
     }
@@ -32,7 +33,7 @@ const fileFilter = (req ,file , cb)=>{
     }
 };
 
-const upload = multer({storage  , fileFilter});
+const upload = multer({storage  , fileFilter , limits: {fileSize: 10* 1024 * 1024}});
 const uploadSingleDoc= upload.single("doc");
 
 router.post("/" ,(req , res)=>{

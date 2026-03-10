@@ -4,15 +4,22 @@ import asyncHandler from "../middlewares/asyncHandler";
 
 const createSub = asyncHandler(async (req ,res) =>{
     try{
-        const {name} = req.body;
+        const {task , fileUrl} = req.body;
 
-        if(!name){
-            return res.json({error :"Name is required"});
+    if(!task || !fileUrl){
+    return res.status(400).json({ error: "task and fileUrl are required" });
         }
-        const existionSub = await Submission.findOne({name});
-     if(existionSub){return res.json({error :'already existiog'})};
-     const sub = await new Submission({name}).save();
-     res.json(sub);   
+
+        const existionSub = await Submission.findOne({user:req.user._id , task});
+     if(existionSub)return res.status(400).json({ error: "You already submitted this task" });
+     const sub = await new Submission({
+        user : req.user._id,
+        task,
+        fileUrl,
+     }).save();
+
+
+     res.status(201).json(sub);   
     }
 
     
@@ -24,14 +31,15 @@ const createSub = asyncHandler(async (req ,res) =>{
 
 const updateSub = asyncHandler(async (req , res)=>{
     try{
-        const {name}  = req.body
+        const {grade ,feedback}  = req.body
         const {id} = req.params;
 
-        const sub = await Submission.findOne({_id: _id});
+        const sub = await Submission.findOne({_id: id});
         if(!sub){
             return res.status(404).json({error :"Submission not Found"})
         }
-        sub.name = name;
+        sub.grade = grade ?? sub.grade;
+        sub.feedback = feedback ?? sub.feedback;
 
         const updateSub = await sub.save();
         res.json(updateSub);

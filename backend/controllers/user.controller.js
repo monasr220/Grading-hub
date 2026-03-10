@@ -1,7 +1,7 @@
 import User from "../models/User";
 import bcrypt from "bcryptjs";
 import asyncHandler from "../middlewares/asyncHandler";
-import createToken from "../utils/createToken";
+import generateToken from "../utils/createToken";
 
 const createUser = asyncHandler(async (req ,res)=>{
     const {username , email, password}= req.body;
@@ -11,11 +11,13 @@ const createUser = asyncHandler(async (req ,res)=>{
 
     }
     const userExists = await User.findOne({email})
-    if(userExists)res.status(400).send("User already exists");
+    if(userExists){res.status(400).send("User already exists");
+        return ;
+    }
 
 
     // deal with password
-    const salt = bcrypt.getSalt(10);
+    const salt = bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password , salt);
     const newUser = new User({username  , email , password:hashedPassword});
 
@@ -36,7 +38,7 @@ const createUser = asyncHandler(async (req ,res)=>{
         throw new Error("Invlaid user Data")
     }
 });
-const loginUser = asycnHandler(async (req , res)=>{
+const loginUser = asyncHandler(async (req , res)=>{
     const {email , password}= req.body;
 
     const existingUser  =await User.findOne({email});
@@ -47,7 +49,7 @@ const loginUser = asycnHandler(async (req , res)=>{
         );
 
         if(isValidPassword){
-            createToken(res , existingUser._id);
+            generateToken(res , existingUser._id);
 
             res.status(200).json({
                 _id : existingUser._id,
@@ -94,14 +96,14 @@ const getCurrentUserProfile = asyncHandler(async (req ,res)=>{
 });
 
 const updateCurrentUserProfile = asyncHandler(async (req , res)=>{
-    const user =await Use.findById(req.user._id);
+    const user =await User.findById(req.user._id);
 
     if(user){
         user.username=  req.body.username || user.username;
-        user.username = req.body.email || user.email;
+        user.email = req.body.email || user.email;
 
         if(req.body.password){
-            const salt = await bcrypt.getSalt(10);
+            const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(req.body.password , salt)
 
             user.password =hashedPassword;
@@ -110,7 +112,7 @@ const updateCurrentUserProfile = asyncHandler(async (req , res)=>{
 
         res.json({
             _id : updatedUser._id,
-            username:updateUser.username,
+            username:updatedUser.username,
             email:updatedUser.email,
         isAdmin : updatedUser.isAdmin,
         });
